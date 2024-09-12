@@ -106,7 +106,17 @@
         ]
     };
 
-    function getMenu(ip) {
+    // 获取设备标识符
+    function getDeviceIdentifier() {
+        let deviceId = localStorage.getItem('device_id');
+        if (!deviceId) {
+            deviceId = 'device-' + Math.random().toString(36).substr(2, 16);
+            localStorage.setItem('device_id', deviceId);
+        }
+        return deviceId;
+    }
+
+    function getMenu() {
         const now = new Date();
         const hours = now.getHours();
         let period;
@@ -120,30 +130,25 @@
             period = 'evening';
         }
 
-        // 基于当前时间段和IP生成一个哈希值来选择菜单
-        const hash = ip.split('.').reduce((acc, num) => acc + parseInt(num), 0) + hours;
+        const deviceId = getDeviceIdentifier();
+        const hash = deviceId.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0) + hours;
         const index = hash % menus[period].length;
 
         return menus[period][index];
     }
 
-    // 模拟获取IP
-    async function getIP() {
-        const response = await fetch('https://api.ipify.org?format=json');
-        const data = await response.json();
-        return data.ip;
-    }
+
+
 
     document.getElementById('giftBox').addEventListener('click', async () => {
-        const ip = await getIP();
-        const menu = getMenu(ip);
+
+        const menu = getMenu();
         const menuElement = document.getElementById('menu');
 
-        // 设置显示菜单内容和动画
         setTimeout(() => {
             menuElement.innerText = menu;
             menuElement.classList.add('visible', 'menu-reveal');
-        }, 500); // 延迟500ms以模拟打开礼盒动画
+        }, 1500); // 延迟500ms以模拟打开礼盒动画
     });
 </script>
 
