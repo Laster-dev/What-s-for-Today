@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>每日菜单开礼盒</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .box {
+            width: 300px;
+            height: 300px;
+            background-color: #FFD700;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 2px solid #000;
+            border-radius: 10px;
+            cursor: pointer;
+            position: relative;
+            transition: transform 0.5s ease;
+        }
+        .box:hover {
+            background-color: #FFA500;
+            transform: scale(1.1);
+        }
+        .text {
+            font-size: 24px;
+            color: #000;
+            text-align: center;
+        }
+        .menu {
+            display: none;
+            font-size: 18px;
+            color: #fff;
+            text-align: center;
+            background-color: #000;
+            padding: 20px;
+            border-radius: 10px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 1s ease;
+        }
+        .menu.visible {
+            display: block;
+            opacity: 1;
+        }
+        .menu-reveal {
+            animation: reveal 1s ease forwards;
+        }
+        @keyframes reveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.5) translate(-50%, -50%);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translate(-50%, -50%);
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="box" id="giftBox">
+    <div class="text">点击打开礼盒</div>
+    <div class="menu" id="menu"></div>
+</div>
+
+<script>
+    const menus = {
+        morning: [
+            "早餐: 包子", "早餐: 油条", "早餐: 豆浆", "早餐: 粥", "早餐: 三明治", 
+            "早餐: 烤面包", "早餐: 鸡蛋饼", "早餐: 牛奶麦片", "早餐: 馄饨", "早餐: 煎饼果子",
+            "早餐: 蒸饺", "早餐: 烧麦", "早餐: 胡辣汤", "早餐: 豆花", "早餐: 玉米",
+            "早餐: 紫薯", "早餐: 手抓饼", "早餐: 热狗", "早餐: 春卷", "早餐: 茶叶蛋",
+            "早餐: 南瓜饼", "早餐: 肉夹馍", "早餐: 油饼", "早餐: 发糕", "早餐: 红豆粥",
+            "早餐: 黑米粥", "早餐: 小米粥", "早餐: 燕麦粥", "早餐: 八宝粥", "早餐: 红枣糕"
+        ],
+        noon: [
+            "午餐: 红烧肉", "午餐: 鸡腿饭", "午餐: 鱼香肉丝", "午餐: 烤鸭", "午餐: 酸菜鱼", 
+            "午餐: 水煮牛肉", "午餐: 糖醋里脊", "午餐: 回锅肉", "午餐: 麻婆豆腐", "午餐: 孜然羊肉",
+            "午餐: 宫保鸡丁", "午餐: 番茄炒蛋", "午餐: 土豆烧牛肉", "午餐: 地三鲜", "午餐: 木须肉",
+            "午餐: 炒时蔬", "午餐: 清炒虾仁", "午餐: 红烧排骨", "午餐: 东坡肉", "午餐: 油焖大虾",
+            "午餐: 梅菜扣肉", "午餐: 四喜丸子", "午餐: 溜肉段", "午餐: 锅包肉", "午餐: 京酱肉丝",
+            "午餐: 芹菜炒肉", "午餐: 蒜薹炒肉", "午餐: 香菇炒肉", "午餐: 平菇炒肉", "午餐: 豆角炒肉"
+        ],
+        evening: [
+            "晚餐: 拉面", "晚餐: 炒饭", "晚餐: 水煮鱼", "晚餐: 排骨汤", "晚餐: 炒粉", 
+            "晚餐: 烤串", "晚餐: 火锅", "晚餐: 寿司", "晚餐: 烧烤", "晚餐: 海鲜炒面",
+            "晚餐: 酸辣土豆丝", "晚餐: 清炒豆苗", "晚餐: 蚝油生菜", "晚餐: 干煸豆角", "晚餐: 虎皮青椒",
+            "晚餐: 洋葱炒鸡蛋", "晚餐: 西红柿鸡蛋汤", "晚餐: 紫菜蛋花汤", "晚餐: 冬瓜肉丸汤", "晚餐: 西湖牛肉羹",
+            "晚餐: 皮蛋豆腐", "晚餐: 凉拌黄瓜", "晚餐: 糖拌西红柿", "晚餐: 凉拌豆芽", "晚餐: 凉拌海带丝",
+            "晚餐: 凉拌腐竹", "晚餐: 凉拌木耳", "晚餐: 凉拌藕片", "晚餐: 凉拌苦瓜", "晚餐: 凉拌豆角"
+        ]
+    };
+
+    function getMenu(ip) {
+        const now = new Date();
+        const hours = now.getHours();
+        let period;
+
+        // 早上：0-9点，午餐：9-14点，晚餐：14点以后
+        if (hours < 9) {
+            period = 'morning';
+        } else if (hours < 14) {
+            period = 'noon';
+        } else {
+            period = 'evening';
+        }
+
+        // 基于当前时间段和IP生成一个哈希值来选择菜单
+        const hash = ip.split('.').reduce((acc, num) => acc + parseInt(num), 0) + hours;
+        const index = hash % menus[period].length;
+
+        return menus[period][index];
+    }
+
+    // 模拟获取IP
+    async function getIP() {
+        const response = await fetch('https://api.ipify.org?format=json');
+        const data = await response.json();
+        return data.ip;
+    }
+
+    document.getElementById('giftBox').addEventListener('click', async () => {
+        const ip = await getIP();
+        const menu = getMenu(ip);
+        const menuElement = document.getElementById('menu');
+
+        // 设置显示菜单内容和动画
+        setTimeout(() => {
+            menuElement.innerText = menu;
+            menuElement.classList.add('visible', 'menu-reveal');
+        }, 500); // 延迟500ms以模拟打开礼盒动画
+    });
+</script>
+
+</body>
+</html>
